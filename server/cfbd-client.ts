@@ -60,7 +60,7 @@ class CFBDClient {
   }
 
   async getTeams(): Promise<CFBDTeam[]> {
-    return this.makeRequest('/teams/fbs');
+    return this.makeRequest('/teams/fbs?year=2024');
   }
 
   async getGames(season: number, seasonType: string = 'both'): Promise<CFBDGame[]> {

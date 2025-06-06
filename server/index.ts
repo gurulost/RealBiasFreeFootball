@@ -40,6 +40,20 @@ app.use((req, res, next) => {
 
 (async () => {
   const server = await registerRoutes(app);
+  
+  // Load 2024 season data on startup if not already loaded
+  const { storage } = await import("./storage");
+  const teams = await storage.getAllTeams();
+  if (teams.length === 0) {
+    console.log("Loading 2024 season data...");
+    const { cfbdClient } = await import("./cfbd-client");
+    try {
+      await cfbdClient.ingestFullSeason(2024);
+      console.log("✅ 2024 season data loaded successfully");
+    } catch (error) {
+      console.log("⚠️ Could not load 2024 data, will use ingestion button:", error instanceof Error ? error.message : 'Unknown error');
+    }
+  }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

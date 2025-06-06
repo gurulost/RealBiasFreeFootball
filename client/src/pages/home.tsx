@@ -8,7 +8,7 @@ import { useRankings } from "@/hooks/use-rankings";
 import { useBiasMetrics } from "@/hooks/use-bias-metrics";
 
 export default function Home() {
-  const { data: rankings, isLoading: rankingsLoading } = useRankings('live');
+  const { data: rankings, isLoading: rankingsLoading } = useRankings('retro', 2024, 15);
   const { data: biasData } = useBiasMetrics();
 
   return (
