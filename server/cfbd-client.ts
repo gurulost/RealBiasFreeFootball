@@ -117,11 +117,31 @@ class CFBDClient {
       const postseasonGames = await this.getPostseasonGames(season);
       
       const allGames = [...regularGames, ...postseasonGames];
+      console.log(`Found ${regularGames.length} regular season games and ${postseasonGames.length} postseason games`);
+      
+      let completedGames = 0;
+      let sampleGame = null;
       
       for (const cfbdGame of allGames) {
         // Check if game already exists
         const existingGame = await storage.getGameByCfbdId(cfbdGame.id);
         if (existingGame) continue;
+
+        // Save first game for debugging
+        if (!sampleGame) {
+          sampleGame = cfbdGame;
+          console.log('Sample game structure:', JSON.stringify(cfbdGame, null, 2));
+        }
+
+        // Debug: Check completion status - use correct property names
+        const isCompleted = cfbdGame.completed === true && 
+                           cfbdGame.homePoints !== undefined && 
+                           cfbdGame.awayPoints !== undefined &&
+                           cfbdGame.homePoints !== null &&
+                           cfbdGame.awayPoints !== null &&
+                           (cfbdGame.homeClassification === 'fbs' || cfbdGame.awayClassification === 'fbs');
+        
+        if (isCompleted) completedGames++;
 
         const gameData: InsertGame = {
           cfbdId: cfbdGame.id,
@@ -129,11 +149,11 @@ class CFBDClient {
           week: cfbdGame.week,
           homeTeam: cfbdGame.home_team,
           awayTeam: cfbdGame.away_team,
-          homePoints: cfbdGame.home_points || null,
-          awayPoints: cfbdGame.away_points || null,
+          homePoints: cfbdGame.home_points ?? null,
+          awayPoints: cfbdGame.away_points ?? null,
           venue: cfbdGame.venue || null,
           venueId: cfbdGame.venue_id || null,
-          completed: cfbdGame.completed || false,
+          completed: isCompleted,
           gameDate: cfbdGame.start_date ? new Date(cfbdGame.start_date) : null,
           conferenceGame: cfbdGame.conference_game || false
         };
@@ -141,7 +161,7 @@ class CFBDClient {
         await storage.createGame(gameData);
       }
       
-      console.log(`Ingested ${allGames.length} games for ${season}`);
+      console.log(`Ingested ${allGames.length} games for ${season} (${completedGames} completed)`);
     } catch (error) {
       console.error(`Error ingesting games for ${season}:`, error);
       throw error;
@@ -156,7 +176,9 @@ class CFBDClient {
       const games = await storage.getGamesBySeason(season);
       const teams = await storage.getAllTeams();
       
-      // Create team lookup
+      console.log(`Processing ${games.length} games for ${teams.length} teams`);
+      
+      // Create team lookup by school name
       const teamLookup = new Map();
       teams.forEach(team => {
         teamLookup.set(team.school, team);
@@ -170,6 +192,7 @@ class CFBDClient {
         teamStats.set(team.id, {
           wins: 0,
           losses: 0,
+          ties: 0,
           points: 0,
           opponentPoints: 0,
           qualityWins: [],
@@ -179,12 +202,17 @@ class CFBDClient {
 
       // Process completed games
       const completedGames = games.filter(game => game.completed && game.homePoints !== null && game.awayPoints !== null);
+      console.log(`Found ${completedGames.length} completed games out of ${games.length} total games`);
       
+      let processedGames = 0;
       for (const game of completedGames) {
         const homeTeam = teamLookup.get(game.homeTeam);
         const awayTeam = teamLookup.get(game.awayTeam);
         
-        if (!homeTeam || !awayTeam) continue;
+        if (!homeTeam || !awayTeam) {
+          console.log(`Teams not found: ${game.homeTeam} vs ${game.awayTeam}`);
+          continue;
+        }
 
         const homeStats = teamStats.get(homeTeam.id);
         const awayStats = teamStats.get(awayTeam.id);
@@ -194,27 +222,37 @@ class CFBDClient {
           homeStats.wins++;
           awayStats.losses++;
           homeStats.rating += 0.1; // Winner bonus
-        } else {
+        } else if (game.awayPoints! > game.homePoints!) {
           // Away team wins
           awayStats.wins++;
           homeStats.losses++;
           awayStats.rating += 0.1; // Winner bonus
+        } else {
+          // Tie game
+          homeStats.ties++;
+          awayStats.ties++;
         }
         
         homeStats.points += game.homePoints!;
         homeStats.opponentPoints += game.awayPoints!;
         awayStats.points += game.awayPoints!;
         awayStats.opponentPoints += game.homePoints!;
+        processedGames++;
       }
+      
+      console.log(`Processed ${processedGames} games for ranking calculation`);
 
       // Calculate final ratings (simplified PageRank)
       teams.forEach(team => {
         const stats = teamStats.get(team.id);
         if (stats) {
-          // Combine win percentage with point differential
-          const winPct = stats.wins / (stats.wins + stats.losses || 1);
-          const pointDiff = (stats.points - stats.opponentPoints) / (stats.wins + stats.losses || 1);
-          stats.rating = winPct * 0.7 + (pointDiff / 50) * 0.3 + 0.5; // Normalized rating
+          const totalGames = stats.wins + stats.losses + stats.ties;
+          if (totalGames > 0) {
+            // Combine win percentage with point differential
+            const winPct = stats.wins / totalGames;
+            const pointDiff = (stats.points - stats.opponentPoints) / totalGames;
+            stats.rating = winPct * 0.7 + Math.max(-1, Math.min(1, pointDiff / 50)) * 0.3 + 0.5;
+          }
         }
       });
 
@@ -232,7 +270,7 @@ class CFBDClient {
         rating: team.rating.toFixed(6),
         deltaRank: null,
         qualityWins: team.qualityWins,
-        record: `${team.wins}-${team.losses}`,
+        record: team.ties > 0 ? `${team.wins}-${team.losses}-${team.ties}` : `${team.wins}-${team.losses}`,
         trackType: 'retro'
       }));
 
