@@ -60,7 +60,7 @@ export function RankingsTable({ rankings = [], isLoading, showPagination = false
 
   const getRankChangeIcon = (delta: number | null) => {
     if (!delta || delta === 0) {
-      return <span className="font-mono text-sm text-neutral-500">--</span>;
+      return <span className="font-mono text-sm text-muted-foreground">--</span>;
     }
     
     if (delta > 0) {
@@ -69,7 +69,7 @@ export function RankingsTable({ rankings = [], isLoading, showPagination = false
           <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7l4-4m0 0l4 4m-4-4v18"></path>
           </svg>
-          <span className="font-mono text-sm">+{delta}</span>
+          <span className="font-mono text-sm font-semibold">+{delta}</span>
         </div>
       );
     }
@@ -79,9 +79,30 @@ export function RankingsTable({ rankings = [], isLoading, showPagination = false
         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 17l-4 4m0 0l-4-4m4 4V3"></path>
         </svg>
-        <span className="font-mono text-sm">{delta}</span>
+        <span className="font-mono text-sm font-semibold">{delta}</span>
       </div>
     );
+  };
+
+  const getRankBadge = (rank: number) => {
+    if (rank === 1) return "bg-gradient-to-r from-yellow-400 to-yellow-500 text-white shadow-lg";
+    if (rank <= 4) return "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md";
+    if (rank <= 12) return "bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md";
+    if (rank <= 25) return "bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-md";
+    return "bg-muted text-muted-foreground";
+  };
+
+  const getConferenceBadgeStyle = (conference: string | null) => {
+    switch (conference) {
+      case 'SEC': return 'bg-red-100 text-red-800 border-red-200';
+      case 'Big Ten': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'Big 12': return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'ACC': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'Pac-12': return 'bg-green-100 text-green-800 border-green-200';
+      case 'American Athletic': return 'bg-cyan-100 text-cyan-800 border-cyan-200';
+      case 'Mountain West': return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
   };
 
   if (isLoading) {
@@ -127,18 +148,23 @@ export function RankingsTable({ rankings = [], isLoading, showPagination = false
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="shadow-elegant-lg border-0 bg-gradient-card">
+      <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
-          <CardTitle>
-            {rankings[0]?.trackType === 'live' ? 'Live' : 'Retro'} Rankings - Week {rankings[0]?.week}
-          </CardTitle>
+          <div>
+            <CardTitle className="text-2xl font-bold tracking-tight">
+              {rankings[0]?.trackType === 'live' ? '🔴 Live' : '📊 Final'} Rankings
+            </CardTitle>
+            <p className="text-muted-foreground mt-1">
+              2024 Season • Week {rankings[0]?.week} • {filteredRankings.length} teams
+            </p>
+          </div>
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-2">
-              <Filter className="w-4 h-4 text-neutral-500" />
-              <label className="text-sm text-neutral-600">Conference:</label>
+              <Filter className="w-4 h-4 text-muted-foreground" />
+              <label className="text-sm text-muted-foreground font-medium">Conference:</label>
               <Select value={conferenceFilter} onValueChange={setConferenceFilter}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-44">
                   <SelectValue placeholder="All Conferences" />
                 </SelectTrigger>
                 <SelectContent>
@@ -149,7 +175,7 @@ export function RankingsTable({ rankings = [], isLoading, showPagination = false
                 </SelectContent>
               </Select>
             </div>
-            <Button variant="outline" size="sm" onClick={handleExportCSV}>
+            <Button variant="outline" size="sm" onClick={handleExportCSV} className="shadow-elegant">
               <Download className="w-4 h-4 mr-2" />
               Export CSV
             </Button>
