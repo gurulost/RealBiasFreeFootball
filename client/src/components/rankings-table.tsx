@@ -22,7 +22,7 @@ export function RankingsTable({ rankings = [], isLoading, showPagination = false
   const itemsPerPage = 25;
 
   const filteredRankings = rankings.filter(ranking => 
-    !conferenceFilter || ranking.team?.conference === conferenceFilter
+    !conferenceFilter || conferenceFilter === "all" || ranking.team?.conference === conferenceFilter
   );
 
   const paginatedRankings = showPagination 
@@ -142,9 +142,9 @@ export function RankingsTable({ rankings = [], isLoading, showPagination = false
                   <SelectValue placeholder="All Conferences" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Conferences</SelectItem>
+                  <SelectItem value="all">All Conferences</SelectItem>
                   {conferences.map(conf => (
-                    <SelectItem key={conf} value={conf}>{conf}</SelectItem>
+                    <SelectItem key={conf} value={conf || "unknown"}>{conf}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
