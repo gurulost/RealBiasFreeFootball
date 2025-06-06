@@ -88,12 +88,18 @@ class CFBDClient {
         const existingTeam = await storage.getTeamByCfbdId(cfbdTeam.id);
         if (existingTeam) continue;
 
+        // Create unique conference ID for Independents to prevent unearned boosts
+        const confId = cfbdTeam.conference === "FBS Independents" 
+          ? `IND-${cfbdTeam.abbreviation || cfbdTeam.school.replace(/\s+/g, '').toUpperCase()}`
+          : cfbdTeam.conference || null;
+
         const teamData: InsertTeam = {
           cfbdId: cfbdTeam.id,
           school: cfbdTeam.school,
           mascot: cfbdTeam.mascot || null,
           abbreviation: cfbdTeam.abbreviation || null,
           conference: cfbdTeam.conference || null,
+          confId: confId,
           division: cfbdTeam.division || null,
           classification: cfbdTeam.classification || null,
           color: cfbdTeam.color || null,
@@ -279,6 +285,89 @@ class CFBDClient {
 
       await storage.createMultipleRankings(rankings);
       
+      // Calculate conference strength using confId to properly handle Independents
+      const conferenceStats = new Map<string, {
+        wins: number,
+        losses: number,
+        crossConferenceWins: number,
+        crossConferenceLosses: number,
+        totalTeams: number,
+        avgRating: number
+      }>();
+
+      // Initialize conference stats
+      teams.forEach(team => {
+        const confId = team.confId || team.conference || 'Unknown';
+        if (!conferenceStats.has(confId)) {
+          conferenceStats.set(confId, {
+            wins: 0,
+            losses: 0,
+            crossConferenceWins: 0,
+            crossConferenceLosses: 0,
+            totalTeams: 0,
+            avgRating: 0
+          });
+        }
+      });
+
+      // Calculate cross-conference performance using confId
+      for (const game of games) {
+        if (!game.completed || game.homePoints === null || game.awayPoints === null) continue;
+
+        const homeTeam = teamLookup.get(game.homeTeam);
+        const awayTeam = teamLookup.get(game.awayTeam);
+        
+        if (homeTeam && awayTeam) {
+          const homeConfId = homeTeam.confId || homeTeam.conference || 'Unknown';
+          const awayConfId = awayTeam.confId || awayTeam.conference || 'Unknown';
+          
+          // Only count cross-conference games for strength calculation
+          if (homeConfId !== awayConfId) {
+            const homeConf = conferenceStats.get(homeConfId)!;
+            const awayConf = conferenceStats.get(awayConfId)!;
+            
+            if (game.homePoints > game.awayPoints) {
+              homeConf.crossConferenceWins++;
+              awayConf.crossConferenceLosses++;
+            } else if (game.awayPoints > game.homePoints) {
+              awayConf.crossConferenceWins++;
+              homeConf.crossConferenceLosses++;
+            }
+          }
+        }
+      }
+
+      // Calculate average rating per conference and create strength records
+      const conferenceStrengths: InsertConferenceStrength[] = [];
+      
+      for (const [confId, stats] of conferenceStats.entries()) {
+        const confTeams = teams.filter(t => (t.confId || t.conference) === confId);
+        stats.totalTeams = confTeams.length;
+        
+        if (confTeams.length > 0) {
+          const confRatings = confTeams.map(t => {
+            const teamStat = teamStats.get(t.id);
+            return teamStat ? teamStat.rating : 0.5;
+          });
+          stats.avgRating = confRatings.reduce((sum, r) => sum + r, 0) / confRatings.length;
+          
+          // Calculate conference strength (cross-conference win percentage + average rating)
+          const crossGameTotal = stats.crossConferenceWins + stats.crossConferenceLosses;
+          const crossWinPct = crossGameTotal > 0 ? stats.crossConferenceWins / crossGameTotal : 0.5;
+          const strength = (crossWinPct * 0.6 + stats.avgRating * 0.4);
+          
+          conferenceStrengths.push({
+            season,
+            week: 15,
+            conference: confId,
+            strength: strength.toFixed(6),
+            biasMetric: Math.abs(strength - 0.5).toFixed(6)
+          });
+        }
+      }
+
+      await storage.createMultipleConferenceStrength(conferenceStrengths);
+      
       // Create bias audit log
       const biasLog: InsertBiasAuditLog = {
         season,
@@ -291,7 +380,7 @@ class CFBDClient {
       
       await storage.createBiasAuditLog(biasLog);
       
-      console.log(`Created ${rankings.length} rankings for ${season}`);
+      console.log(`Created ${rankings.length} rankings and ${conferenceStrengths.length} conference strength records for ${season}`);
     } catch (error) {
       console.error(`Error calculating rankings for ${season}:`, error);
       throw error;

@@ -9,6 +9,7 @@ export const teams = pgTable("teams", {
   mascot: text("mascot"),
   abbreviation: text("abbreviation"),
   conference: text("conference"),
+  confId: text("conf_id"), // Unique conference ID for PageRank calculations
   division: text("division"),
   classification: text("classification"),
   color: text("color"),
@@ -90,6 +91,7 @@ export const insertTeamSchema = createInsertSchema(teams).pick({
   mascot: true,
   abbreviation: true,
   conference: true,
+  confId: true,
   division: true,
   classification: true,
   color: true,

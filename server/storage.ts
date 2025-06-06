@@ -97,6 +97,7 @@ export class MemStorage implements IStorage {
       mascot: insertTeam.mascot ?? null,
       abbreviation: insertTeam.abbreviation ?? null,
       conference: insertTeam.conference ?? null,
+      confId: insertTeam.confId ?? null,
       division: insertTeam.division ?? null,
       classification: insertTeam.classification ?? null,
       color: insertTeam.color ?? null,
