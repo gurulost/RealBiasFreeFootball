@@ -333,6 +333,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test route
+  app.post("/api/test", async (req, res) => {
+    res.json({ message: "POST endpoint working", body: req.body });
+  });
+
   // Data ingestion route
   app.post("/api/ingest", async (req, res) => {
     try {
