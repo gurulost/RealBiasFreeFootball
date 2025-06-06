@@ -3,6 +3,7 @@ import { RankingsTable } from "@/components/rankings-table";
 import { BiasAuditDashboard } from "@/components/bias-dashboard";
 import { MethodologySection } from "@/components/methodology-section";
 import { ConferenceStrength } from "@/components/conference-strength";
+import { DataIngestion } from "@/components/data-ingestion";
 import { useRankings } from "@/hooks/use-rankings";
 import { useBiasMetrics } from "@/hooks/use-bias-metrics";
 
@@ -16,23 +17,24 @@ export default function Home() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-2xl font-bold text-neutral-900">
-              Week {biasData?.currentWeek || 12} Live Rankings
+              2024 Season Definitive Rankings
             </h2>
             <p className="text-neutral-600 mt-1">
-              Updated weekly with risk multipliers and surprise factors • 
+              Complete post-season rankings including all bowl games and playoffs • 
               <span className="font-mono text-sm ml-2">
-                Next update: {new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { 
-                  month: 'short', 
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  timeZoneName: 'short'
-                })}
+                Final rankings after all 2024-2025 postseason games
               </span>
             </p>
           </div>
         </div>
       </div>
+
+      {/* Show data ingestion if no rankings available */}
+      {(!rankings || rankings.length === 0) && (
+        <div className="mb-8 flex justify-center">
+          <DataIngestion />
+        </div>
+      )}
 
       <QuickStats />
       

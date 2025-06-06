@@ -63,5 +63,13 @@ export const api = {
     } else {
       return response.json();
     }
+  },
+
+  // Data ingestion
+  async ingestData(season: number = 2024): Promise<{ success: boolean; message: string; season: number }> {
+    const response = await apiRequest('POST', '/api/ingest', {
+      season
+    });
+    return response.json();
   }
 };
