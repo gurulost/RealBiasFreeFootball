@@ -1,8 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Shield, Database } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function MethodologySection() {
+  const { data: algorithmParams, isLoading } = useQuery({
+    queryKey: ['/api/algorithm-parameters'],
+    queryFn: () => api.getAlgorithmParameters(2024),
+  });
+
   return (
     <Card>
       <CardHeader>
@@ -27,8 +35,8 @@ export function MethodologySection() {
                 <ul className="text-xs text-neutral-600 space-y-1">
                   <li>• Surprise multiplier for upsets (Shannon information)</li>
                   <li>• Risk multipliers based on win probability</li>
-                  <li>• Recency decay (λ = 0.05 per week)</li>
-                  <li>• Margin factor with cap at 5 touchdowns</li>
+                  <li>• Recency decay (λ = {algorithmParams ? algorithmParams.decayLambda : "0.05"} per week)</li>
+                  <li>• Margin factor with cap at {algorithmParams ? `${algorithmParams.marginCap} TDs` : "5 touchdowns"}</li>
                 </ul>
               </div>
             </div>
@@ -56,21 +64,36 @@ export function MethodologySection() {
           <div className="space-y-6">
             <div>
               <h4 className="text-lg font-semibold text-neutral-900 mb-3">Algorithm Parameters</h4>
-              <div className="space-y-3">
-                {[
-                  { label: "Margin Cap", value: "5 TDs" },
-                  { label: "Recency Decay (λ)", value: "0.05" },
-                  { label: "Shrinkage (k)", value: "4 games" },
-                  { label: "Win Prob Constant (C)", value: "0.40" },
-                  { label: "Surprise Factor (γ)", value: "0.75" },
-                  { label: "PageRank Damping", value: "0.85" }
-                ].map((param, idx) => (
-                  <div key={idx} className="flex justify-between items-center py-2 border-b border-neutral-100 last:border-b-0">
-                    <span className="text-sm text-neutral-600">{param.label}</span>
-                    <Badge variant="outline" className="font-mono text-xs">{param.value}</Badge>
-                  </div>
-                ))}
-              </div>
+              {isLoading ? (
+                <div className="space-y-3">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="flex justify-between items-center py-2">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-6 w-16" />
+                    </div>
+                  ))}
+                </div>
+              ) : algorithmParams ? (
+                <div className="space-y-3">
+                  {[
+                    { label: "Margin Cap", value: `${algorithmParams.marginCap} TDs` },
+                    { label: "Recency Decay (λ)", value: algorithmParams.decayLambda },
+                    { label: "Shrinkage (k)", value: `${algorithmParams.shrinkageK} games` },
+                    { label: "Win Prob Constant (C)", value: algorithmParams.winProbC },
+                    { label: "Surprise Factor (γ)", value: algorithmParams.surpriseGamma },
+                    { label: "PageRank Damping", value: algorithmParams.pagerankDamping }
+                  ].map((param, idx) => (
+                    <div key={idx} className="flex justify-between items-center py-2 border-b border-neutral-100 last:border-b-0">
+                      <span className="text-sm text-neutral-600">{param.label}</span>
+                      <Badge variant="outline" className="font-mono text-xs">{param.value}</Badge>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-4 text-neutral-500 text-sm">
+                  Algorithm parameters unavailable
+                </div>
+              )}
             </div>
 
             <div>

@@ -1,0 +1,75 @@
+The Real Bias-Free Football Ranking System: A Complete Guide
+1. Purpose & North-Star Vision
+Our mission is to create the most bias-free, on-field-only ranking of Division I college football teams that anyone can regenerate from public data.
+
+Every design choice flows from three core imperatives:
+
+Conference Neutrality: No league should be unfairly boosted or penalized simply because most of its games are internal "echo chambers." Our system is explicitly designed to break these chambers.
+Schedule-Strength Incentives: Programs should gain more rating equity—win or lose—by playing strong opponents than by stockpiling easy wins against weaker teams.
+Complete Transparency & Auditability: A curious fan, a data scientist, or a committee member must be able to re-run the model, step through every calculation, and arrive at the exact same rankings. All data is sourced from the official College Football Data API, and the methodology is entirely open.
+2. Architectural Overview
+The system operates on two distinct timelines to serve two different purposes: telling the story of the season as it happens and providing a definitive historical record.
+
+ ▄  Sunday 03:00 ET (Live Track)
+ █  Ingest Game Data → Build Two-Layer Graph → Stage-1 PageRank (Conferences)
+ █  → Inject Conference Strength → Stage-2 PageRank (Teams)
+ █  → Run Bias Audit → Publish LIVE Rankings & Deltas
+ ▀  (↑ Weekly Cadence)
+
+ ▄  End of Season (Retro Track)
+ █  Run Hindsight Loop with All Game Data Until Ratings Converge
+ █  → Publish definitive RETRO table for the historical record
+ ▀  (↑ Once per year after the CFP championship)
+3. The Core Methodology: A Two-Layer PageRank System
+To eliminate the "echo chamber" effect where a conference's ranking is skewed by internal games, we use a two-stage PageRank algorithm. This ensures that conference strength is judged solely on out-of-conference performance before team-level rankings are calculated.
+
+Stage 1: Calculating Unbiased Conference Strength
+
+The first layer of the model builds a directed graph where the nodes are conferences, not teams. The edges of this graph are created only from cross-conference games.
+
+How it Works: When a team from Conference A beats a team from Conference B, a weighted edge is drawn from Conference B to Conference A. The weight of this edge is determined by several factors (margin of victory, win probability, etc., explained below).
+The Result: We run the PageRank algorithm on this conference-only graph. The output is an unbiased Conference Strength (S) score for each conference, reflecting its performance against the rest of the field. This is confirmed in the code, where the cfbd-client.ts file calculates conference strength using a unique confId for each team to properly handle independents.
+Stage 2: Calculating Team-Level Rankings
+
+Once we have the unbiased conference strength scores, we move to the team-level graph.
+
+How it Works: This graph includes all games (both cross-conference and intra-conference). For intra-conference games, the calculated conference strength (√S) is injected exactly once as a multiplier on the edge weight. This means a win against a conference peer is valued more if that conference has proven its strength on the national stage.
+The Result: We run PageRank on this final, comprehensive graph to produce the definitive team-level rating (R) for every team.
+4. The Anatomy of a Game: How Edge Weights are Calculated
+The "weight" of each game—how much credit flows from the loser to the winner—is determined by a combination of factors, each with a specific purpose. All parameters are defined in shared/schema.ts and the Rating_System.md document.
+
+Component	Formula	Default	Purpose
+Margin Factor	log₂(1 + max(margin, 1))	Cap = 5 TDs	Prevents "style points" from dwarfing the core result of who won. Matches empirical data on win probability vs. point differential.
+Venue Factor	1.1 (Home), 1.0 (Neutral), 0.9 (Away)	—	Adjusts for home-field advantage.
+Recency Factor	exp(-λ * Δweeks)	λ = 0.05	Gives more weight to recent performance, with games losing ~5% of their influence each week.
+Shrinkage Weight	gᵢ / (gᵢ + k)	k = 4 games	A Bayesian principle that reduces volatility in the early season by blending a team's rating with the global mean until enough games (gᵢ) have been played.
+Win Probability	1 / (1 + 10^-(Rₐ - Rₑ)/C)	C = 0.40	Standard Elo-style win probability based on the rating difference between the two teams.
+Risk Multipliers	Credit: (1 - p)ᴮ / 0.5, Penalty: (p / 0.5)ᴮ	B = 1.0	Rewards teams for taking on tough opponents (low win probability) and minimizes gains from cupcake games (high win probability).
+Surprise Multiplier	1 + γ * [-log₂(p)]	γ = 0.75, Cap = 3x	Applied only to cross-conference games, this information-theoretic measure gives massive weight to upsets, allowing conference perceptions to shift rapidly when a presumed underdog wins.
+Bowl Weight Bump	× 1.10 on credit edge	—	A small bonus for bowl games, which are typically high-stakes, neutral-site matchups.
+PageRank Damping	d = 0.85	—	The standard PageRank damping factor, representing the probability of a random walker continuing to follow links.
+5. LIVE vs. RETRO: Two Tracks for Full Transparency
+The system produces two distinct sets of rankings, as defined in the Rating_System.md document and visible in the rankings.tsx page component.
+
+LIVE Rankings (Weekly): These rankings are generated every Sunday morning. They use the ratings from the previous week to calculate win probabilities and multipliers. This approach captures the weekly narrative and avoids circular logic, showing how rankings evolve based on the prior week's expectations.
+RETRO Rankings (End of Season): After the final championship game, a "hindsight loop" is run on the entire season's data. It re-calculates all weights and ratings iteratively until they converge. This produces a definitive, historically accurate ranking for the season, free from the constraints of weekly fluctuations. The home.tsx page defaults to showing these definitive 2024 retro rankings.
+6. Implementation and Transparency
+Our commitment to transparency is built into the system's architecture, from the database schema to the user interface.
+
+Data Source and Ingestion
+
+Single Source of Truth: The system uses the College Football Data API as its sole data source. The cfbd-client.ts file manages all API calls, ensuring data is authentic and consistent. The API key setup is documented in CFBD_API_Key_Setup_Guide.md.
+Automated Ingestion: On startup, the server automatically ingests the full season data, as seen in server/index.ts. A manual ingestion trigger is also available in the UI, handled by the DataIngestion component.
+Open Code and Auditable Outputs
+
+Database Schema: The shared/schema.ts file explicitly defines every table and field used, including teams, games, rankings, conferenceStrength, and biasAuditLogs. This provides a clear data dictionary for anyone auditing the system.
+API Endpoints: The server/routes.ts file exposes endpoints for all key data sets, including /api/rankings, /api/conference-strength, and /api/bias-audit. An export endpoint, /api/export/rankings, allows users to download the raw data in CSV format, fulfilling a core transparency goal.
+Frontend Visualization: The website is designed to make these complex concepts understandable.
+The Conference Analysis page (conference-analysis.tsx) directly implements the transparency goals from the Conference Rank Page.docx document, showing the PageRank vector, the flow matrix between conferences, and the final injection multipliers.
+The Bias Audit page (bias-audit.tsx) and dashboard components provide real-time visibility into the system's neutrality.
+Governance and Reproducibility
+
+Freeze Knobs Before Week 0: All algorithm parameters are locked before the season starts to ensure consistency.
+Publish Code & Data: The code is open source, and the data is published weekly.
+Document All Changes: Any bug fixes or necessary changes are documented, and both tracks are re-run if needed to maintain a clear audit trail.
+By combining a robust, bias-aware algorithm with a radical commitment to transparency, this system provides a college football ranking that is not only accurate but also fully defensible and understandable.

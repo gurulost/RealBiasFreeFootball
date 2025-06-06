@@ -67,16 +67,16 @@ export function QuickStats() {
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-neutral-600">Ranking Changes</p>
+              <p className="text-sm text-neutral-600">Live Rankings</p>
               <p className="text-2xl font-bold text-primary-600 font-mono">
-                {Math.floor(data.liveRankingsCount * 0.36) || 47}
+                {data.liveRankingsCount}
               </p>
             </div>
             <div className="w-12 h-12 bg-primary-600/10 rounded-lg flex items-center justify-center">
               <TrendingUp className="w-6 h-6 text-primary-600" />
             </div>
           </div>
-          <p className="text-xs text-neutral-500 mt-2">From previous week</p>
+          <p className="text-xs text-neutral-500 mt-2">Teams currently ranked</p>
         </CardContent>
       </Card>
 
@@ -84,16 +84,16 @@ export function QuickStats() {
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-neutral-600">Quality Wins</p>
+              <p className="text-sm text-neutral-600">Retro Rankings</p>
               <p className="text-2xl font-bold text-amber-600 font-mono">
-                {Math.floor(data.liveRankingsCount * 0.18) || 23}
+                {data.retroRankingsCount}
               </p>
             </div>
             <div className="w-12 h-12 bg-amber-600/10 rounded-lg flex items-center justify-center">
               <Award className="w-6 h-6 text-amber-600" />
             </div>
           </div>
-          <p className="text-xs text-neutral-500 mt-2">Cross-conference upsets</p>
+          <p className="text-xs text-neutral-500 mt-2">Final season rankings</p>
         </CardContent>
       </Card>
 
@@ -101,16 +101,16 @@ export function QuickStats() {
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-neutral-600">Games Processed</p>
+              <p className="text-sm text-neutral-600">Total Teams</p>
               <p className="text-2xl font-bold text-neutral-800 font-mono">
-                {Math.floor(data.currentWeek * 85) || 1247}
+                {data.totalTeams}
               </p>
             </div>
             <div className="w-12 h-12 bg-neutral-100 rounded-lg flex items-center justify-center">
               <Database className="w-6 h-6 text-neutral-600" />
             </div>
           </div>
-          <p className="text-xs text-neutral-500 mt-2">Season to date</p>
+          <p className="text-xs text-neutral-500 mt-2">FBS teams analyzed</p>
         </CardContent>
       </Card>
     </div>

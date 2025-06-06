@@ -59,11 +59,16 @@ export default function ConferenceAnalysis() {
 
   const handleExportData = async (type: string) => {
     try {
-      // In real implementation, these would be actual API calls
-      const mockData = type === 'rankings' ? conferenceRankings :
-                      type === 'matrix' ? flowMatrix : crossConfGames;
+      let exportData;
+      if (type === 'rankings') {
+        exportData = conferenceRankings;
+      } else if (type === 'matrix') {
+        exportData = flowMatrix;
+      } else {
+        exportData = crossConfGames;
+      }
       
-      const csv = convertToCSV(mockData);
+      const csv = convertToCSV(exportData);
       downloadCSV(csv, `conference-${type}-${selectedSeason}.csv`);
       
       toast({

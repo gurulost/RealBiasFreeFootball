@@ -393,12 +393,33 @@ class CFBDClient {
     try {
       await this.ingestTeams();
       await this.ingestGames(season);
+      await this.createAlgorithmParameters(season);
       await this.calculateRankings(season);
       
       console.log(`✅ Successfully ingested complete ${season} season data`);
     } catch (error) {
       console.error(`❌ Error during full season ingestion:`, error);
       throw error;
+    }
+  }
+
+  async createAlgorithmParameters(season: number): Promise<void> {
+    const existing = await storage.getAlgorithmParametersBySeason(season);
+    if (!existing) {
+      const defaultParams: InsertAlgorithmParameters = {
+        season,
+        marginCap: 5,
+        decayLambda: "0.05",
+        shrinkageK: 4,
+        winProbC: "0.40",
+        riskElasticity: "1.25",
+        surpriseGamma: "0.75",
+        surpriseCap: 3,
+        bowlBonus: "1.15",
+        pagerankDamping: "0.85",
+        frozenAt: null
+      };
+      await storage.createAlgorithmParameters(defaultParams);
     }
   }
 }
