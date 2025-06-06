@@ -186,70 +186,84 @@ export function RankingsTable({ rankings = [], isLoading, showPagination = false
       <CardContent className="p-0">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-neutral-50">
+            <thead className="bg-gradient-to-r from-muted/50 to-muted/30 backdrop-blur-sm">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Rank</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Team</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Conference</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Rating</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Change</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Quality Wins</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Record</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Rank</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Team</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Conference</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Rating</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Change</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Quality Wins</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Record</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-neutral-200">
-              {paginatedRankings.map((ranking) => (
-                <tr key={ranking.id} className="hover:bg-neutral-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="font-mono text-lg font-semibold text-neutral-900">
+            <tbody className="bg-background/50 divide-y divide-border/50">
+              {paginatedRankings.map((ranking, index) => (
+                <tr 
+                  key={ranking.id} 
+                  className="hover:bg-accent/50 transition-all duration-200 animate-slide-up group"
+                  style={{ animationDelay: `${index * 25}ms` }}
+                >
+                  <td className="px-6 py-5 whitespace-nowrap">
+                    <div className={`inline-flex items-center justify-center w-10 h-10 rounded-xl font-bold text-sm ${getRankBadge(ranking.rank)}`}>
                       {ranking.rank}
-                    </span>
+                    </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center space-x-3">
+                  <td className="px-6 py-5 whitespace-nowrap">
+                    <div className="flex items-center space-x-4">
                       <div 
-                        className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                        className="w-12 h-12 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-lg group-hover:scale-105 transition-transform duration-200"
                         style={{ backgroundColor: ranking.team?.color || '#6B7280' }}
                       >
                         {ranking.team?.abbreviation || ranking.team?.school?.substring(0, 3).toUpperCase() || 'TM'}
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-neutral-900">
+                        <div className="text-base font-semibold text-foreground">
                           {ranking.team?.school || 'Unknown Team'}
                         </div>
                         {ranking.team?.mascot && (
-                          <div className="text-xs text-neutral-500">{ranking.team.mascot}</div>
+                          <div className="text-sm text-muted-foreground font-medium">{ranking.team.mascot}</div>
                         )}
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                    {ranking.team?.conference || 'Unknown'}
+                  <td className="px-6 py-5 whitespace-nowrap">
+                    <Badge 
+                      variant="outline" 
+                      className={`text-xs font-medium ${getConferenceBadgeStyle(ranking.team?.conference || null)}`}
+                    >
+                      {ranking.team?.conference || 'Independent'}
+                    </Badge>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="font-mono text-sm font-semibold">
+                  <td className="px-6 py-5 whitespace-nowrap">
+                    <span className="font-mono text-base font-bold text-primary bg-primary/10 px-3 py-1 rounded-lg">
                       {parseFloat(ranking.rating).toFixed(3)}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-5 whitespace-nowrap">
                     {getRankChangeIcon(ranking.deltaRank)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex flex-wrap gap-1">
+                  <td className="px-6 py-5 whitespace-nowrap">
+                    <div className="flex flex-wrap gap-1 max-w-32">
                       {ranking.qualityWins?.slice(0, 2).map((win, idx) => (
-                        <Badge key={idx} variant="secondary" className="text-xs">
+                        <Badge key={idx} variant="secondary" className="text-xs bg-green-100 text-green-800 border-green-200">
                           {win}
                         </Badge>
                       ))}
                       {(ranking.qualityWins?.length || 0) > 2 && (
                         <Badge variant="outline" className="text-xs">
-                          +{(ranking.qualityWins?.length || 0) - 2} more
+                          +{(ranking.qualityWins?.length || 0) - 2}
                         </Badge>
+                      )}
+                      {(!ranking.qualityWins || ranking.qualityWins.length === 0) && (
+                        <span className="text-muted-foreground text-sm italic">None</span>
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="font-mono text-sm">{ranking.record || 'N/A'}</span>
+                  <td className="px-6 py-5 whitespace-nowrap">
+                    <span className="font-mono text-sm font-semibold bg-muted px-3 py-1 rounded-lg">
+                      {ranking.record || 'N/A'}
+                    </span>
                   </td>
                 </tr>
               ))}

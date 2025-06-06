@@ -29,10 +29,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="min-h-screen bg-neutral-50">
+        <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/10 animate-fade-in">
           <Navbar />
           <BiasAlert />
-          <Router />
+          <div className="relative">
+            <Router />
+          </div>
         </div>
         <Toaster />
       </TooltipProvider>
