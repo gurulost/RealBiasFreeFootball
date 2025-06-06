@@ -15,26 +15,26 @@ export default function Home() {
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {/* Hero Section */}
       <div className="mb-12 text-center">
-        <div className="bg-gradient-card rounded-2xl p-8 shadow-elegant-lg border-0">
-          <h1 className="text-4xl font-bold text-foreground mb-4 tracking-tight">
-            2024 Season Final Rankings
+        <div className="bg-gradient-to-br from-card via-surface-3 to-surface-4 rounded-2xl p-8 shadow-2xl shadow-black/25 border border-border/50">
+          <h1 className="text-4xl font-display font-bold text-foreground mb-4 tracking-wide">
+            2024 SEASON FINAL RANKINGS
           </h1>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-lg font-body text-muted-foreground max-w-3xl mx-auto">
             Definitive college football rankings powered by our bias-free two-layer PageRank algorithm. 
             Complete post-season analysis including all bowl games and playoff results.
           </p>
           <div className="flex items-center justify-center space-x-6 mt-6 text-sm">
             <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-muted-foreground">134 Teams Ranked</span>
+              <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
+              <span className="font-body text-muted-foreground">134 TEAMS RANKED</span>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span className="text-muted-foreground">798 Games Analyzed</span>
+              <div className="w-2 h-2 bg-info rounded-full"></div>
+              <span className="font-body text-muted-foreground">798 GAMES ANALYZED</span>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-              <span className="text-muted-foreground">13 Conferences</span>
+              <div className="w-2 h-2 bg-primary rounded-full"></div>
+              <span className="font-body text-muted-foreground">13 CONFERENCES</span>
             </div>
           </div>
         </div>

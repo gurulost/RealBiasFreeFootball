@@ -31,7 +31,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/10 animate-fade-in">
+        <div className="min-h-screen bg-gradient-to-br from-background via-surface-1 to-surface-2 dark animate-fade-in">
           <Navbar />
           <BiasAlert />
           <div className="relative">

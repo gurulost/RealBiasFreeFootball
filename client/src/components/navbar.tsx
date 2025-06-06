@@ -15,17 +15,17 @@ export function Navbar() {
   ];
 
   return (
-    <header className="bg-white/80 backdrop-blur-lg border-b border-border sticky top-0 z-50 shadow-elegant">
+    <header className="bg-card/95 backdrop-blur-lg border-b border-border sticky top-0 z-50 shadow-2xl shadow-black/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-4">
             <Link href="/" className="flex items-center space-x-3 group">
-              <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
-                <span className="text-white font-bold text-sm">CFB</span>
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-amber-500 rounded-lg flex items-center justify-center shadow-2xl group-hover:scale-105 transition-all duration-200 border border-primary/20">
+                <span className="text-primary-foreground font-display font-bold text-sm">CFB</span>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground tracking-tight">Bias-Free Rankings</h1>
-                <p className="text-xs text-muted-foreground font-medium">Two-Layer PageRank System</p>
+                <h1 className="text-xl font-display font-bold text-foreground tracking-wider">BIAS-FREE RANKINGS</h1>
+                <p className="text-xs text-muted-foreground font-body font-medium tracking-wide">TWO-LAYER PAGERANK SYSTEM</p>
               </div>
             </Link>
           </div>
@@ -38,10 +38,10 @@ export function Navbar() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200",
+                    "flex items-center space-x-2 px-4 py-2 rounded-lg font-body font-medium transition-all duration-200",
                     item.isActive
-                      ? "bg-primary text-primary-foreground shadow-elegant"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
                   )}
                 >
                   <Icon className="w-4 h-4" />
@@ -52,12 +52,12 @@ export function Navbar() {
           </nav>
 
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 px-3 py-1.5 bg-green-50 rounded-full border border-green-200">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm text-green-700 font-medium">Live</span>
+            <div className="flex items-center space-x-2 px-3 py-1.5 bg-success/20 rounded-full border border-success/30">
+              <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
+              <span className="text-sm text-success font-body font-medium">LIVE</span>
             </div>
             <div className="text-sm text-muted-foreground">
-              <span className="font-mono bg-muted px-2 py-1 rounded">2024 Season Final</span>
+              <span className="font-numeric bg-secondary/50 px-3 py-1.5 rounded-lg border border-border/50">2024 SEASON FINAL</span>
             </div>
           </div>
         </div>
