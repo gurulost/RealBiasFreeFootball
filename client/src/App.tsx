@@ -10,6 +10,7 @@ import Rankings from "@/pages/rankings";
 import BiasAudit from "@/pages/bias-audit";
 import Methodology from "@/pages/methodology";
 import ConferenceAnalysis from "@/pages/conference-analysis";
+import Transparency from "@/pages/transparency";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/bias-audit" component={BiasAudit} />
       <Route path="/methodology" component={Methodology} />
       <Route path="/conference-analysis" component={ConferenceAnalysis} />
+      <Route path="/transparency" component={Transparency} />
       <Route component={NotFound} />
     </Switch>
   );

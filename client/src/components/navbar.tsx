@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { TrendingUp, Activity, BarChart3, Shield, BookOpen } from "lucide-react";
+import { TrendingUp, Activity, BarChart3, Shield, BookOpen, Eye } from "lucide-react";
 
 export function Navbar() {
   const [location] = useLocation();
@@ -11,6 +11,7 @@ export function Navbar() {
     { href: "/conference-analysis", label: "Conference Analysis", icon: Activity, isActive: location === "/conference-analysis" },
     { href: "/bias-audit", label: "Bias Audit", icon: Shield, isActive: location === "/bias-audit" },
     { href: "/methodology", label: "Methodology", icon: BookOpen, isActive: location === "/methodology" },
+    { href: "/transparency", label: "Transparency", icon: Eye, isActive: location === "/transparency" },
   ];
 
   return (
