@@ -5,16 +5,19 @@ interface CFBDGame {
   id: number;
   season: number;
   week: number;
-  season_type: string;
-  start_date: string;
+  seasonType: string;
+  startDate: string;
   completed: boolean;
-  home_team: string;
-  away_team: string;
-  home_points?: number;
-  away_points?: number;
+  homeTeam: string;
+  awayTeam: string;
+  homePoints?: number;
+  awayPoints?: number;
+  homeClassification?: string;
+  awayClassification?: string;
   venue?: string;
-  venue_id?: number;
-  conference_game: boolean;
+  venueId?: number;
+  conferenceGame: boolean;
+  [key: string]: any; // Allow for flexible property access
 }
 
 interface CFBDTeam {
@@ -133,7 +136,7 @@ class CFBDClient {
           console.log('Sample game structure:', JSON.stringify(cfbdGame, null, 2));
         }
 
-        // Debug: Check completion status - use correct property names
+        // Debug: Check completion status - use correct property names from API
         const isCompleted = cfbdGame.completed === true && 
                            cfbdGame.homePoints !== undefined && 
                            cfbdGame.awayPoints !== undefined &&
@@ -147,15 +150,15 @@ class CFBDClient {
           cfbdId: cfbdGame.id,
           season: cfbdGame.season,
           week: cfbdGame.week,
-          homeTeam: cfbdGame.home_team,
-          awayTeam: cfbdGame.away_team,
-          homePoints: cfbdGame.home_points ?? null,
-          awayPoints: cfbdGame.away_points ?? null,
+          homeTeam: cfbdGame.homeTeam,
+          awayTeam: cfbdGame.awayTeam,
+          homePoints: cfbdGame.homePoints ?? null,
+          awayPoints: cfbdGame.awayPoints ?? null,
           venue: cfbdGame.venue || null,
-          venueId: cfbdGame.venue_id || null,
+          venueId: cfbdGame.venueId || null,
           completed: isCompleted,
-          gameDate: cfbdGame.start_date ? new Date(cfbdGame.start_date) : null,
-          conferenceGame: cfbdGame.conference_game || false
+          gameDate: cfbdGame.startDate ? new Date(cfbdGame.startDate) : null,
+          conferenceGame: cfbdGame.conferenceGame || false
         };
 
         await storage.createGame(gameData);
