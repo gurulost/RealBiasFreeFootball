@@ -90,7 +90,19 @@ export class MemStorage implements IStorage {
 
   async createTeam(insertTeam: InsertTeam): Promise<Team> {
     const id = this.currentId++;
-    const team: Team = { ...insertTeam, id };
+    const team: Team = { 
+      id,
+      cfbdId: insertTeam.cfbdId,
+      school: insertTeam.school,
+      mascot: insertTeam.mascot ?? null,
+      abbreviation: insertTeam.abbreviation ?? null,
+      conference: insertTeam.conference ?? null,
+      division: insertTeam.division ?? null,
+      classification: insertTeam.classification ?? null,
+      color: insertTeam.color ?? null,
+      alternateColor: insertTeam.alternateColor ?? null,
+      logos: insertTeam.logos ? [...insertTeam.logos] : null
+    };
     this.teams.set(id, team);
     return team;
   }
@@ -98,7 +110,11 @@ export class MemStorage implements IStorage {
   async updateTeam(id: number, updateTeam: Partial<InsertTeam>): Promise<Team | undefined> {
     const team = this.teams.get(id);
     if (!team) return undefined;
-    const updatedTeam = { ...team, ...updateTeam };
+    const updatedTeam: Team = { 
+      ...team, 
+      ...updateTeam,
+      logos: updateTeam.logos ? [...updateTeam.logos] : team.logos
+    };
     this.teams.set(id, updatedTeam);
     return updatedTeam;
   }
@@ -124,7 +140,17 @@ export class MemStorage implements IStorage {
 
   async createGame(insertGame: InsertGame): Promise<Game> {
     const id = this.currentId++;
-    const game: Game = { ...insertGame, id };
+    const game: Game = { 
+      ...insertGame, 
+      id,
+      homePoints: insertGame.homePoints ?? null,
+      awayPoints: insertGame.awayPoints ?? null,
+      venue: insertGame.venue ?? null,
+      venueId: insertGame.venueId ?? null,
+      completed: insertGame.completed ?? null,
+      gameDate: insertGame.gameDate ?? null,
+      conferenceGame: insertGame.conferenceGame ?? null
+    };
     this.games.set(id, game);
     return game;
   }
@@ -168,8 +194,16 @@ export class MemStorage implements IStorage {
   async createRanking(insertRanking: InsertRanking): Promise<Ranking> {
     const id = this.currentId++;
     const ranking: Ranking = { 
-      ...insertRanking, 
-      id, 
+      id,
+      season: insertRanking.season,
+      week: insertRanking.week,
+      teamId: insertRanking.teamId,
+      rank: insertRanking.rank,
+      rating: insertRanking.rating,
+      deltaRank: insertRanking.deltaRank ?? null,
+      qualityWins: insertRanking.qualityWins ? [...insertRanking.qualityWins] : null,
+      record: insertRanking.record ?? null,
+      trackType: insertRanking.trackType,
       createdAt: new Date() 
     };
     this.rankings.set(id, ranking);
@@ -199,8 +233,12 @@ export class MemStorage implements IStorage {
   async createConferenceStrength(insertStrength: InsertConferenceStrength): Promise<ConferenceStrength> {
     const id = this.currentId++;
     const strength: ConferenceStrength = { 
-      ...insertStrength, 
-      id, 
+      id,
+      season: insertStrength.season,
+      week: insertStrength.week,
+      conference: insertStrength.conference,
+      strength: insertStrength.strength,
+      biasMetric: insertStrength.biasMetric ?? null,
       createdAt: new Date() 
     };
     this.conferenceStrengths.set(id, strength);
@@ -234,8 +272,13 @@ export class MemStorage implements IStorage {
   async createBiasAuditLog(insertLog: InsertBiasAuditLog): Promise<BiasAuditLog> {
     const id = this.currentId++;
     const log: BiasAuditLog = { 
-      ...insertLog, 
-      id, 
+      id,
+      season: insertLog.season,
+      week: insertLog.week,
+      biasMetric: insertLog.biasMetric,
+      maxDeviation: insertLog.maxDeviation ?? null,
+      isWithinTarget: insertLog.isWithinTarget ?? null,
+      autoTuneTriggered: insertLog.autoTuneTriggered ?? null,
       createdAt: new Date() 
     };
     this.biasAuditLogs.set(id, log);
@@ -254,8 +297,18 @@ export class MemStorage implements IStorage {
   async createAlgorithmParameters(insertParams: InsertAlgorithmParameters): Promise<AlgorithmParameters> {
     const id = this.currentId++;
     const params: AlgorithmParameters = { 
-      ...insertParams, 
-      id, 
+      id,
+      season: insertParams.season,
+      marginCap: insertParams.marginCap ?? null,
+      decayLambda: insertParams.decayLambda ?? null,
+      shrinkageK: insertParams.shrinkageK ?? null,
+      winProbC: insertParams.winProbC ?? null,
+      riskElasticity: insertParams.riskElasticity ?? null,
+      surpriseGamma: insertParams.surpriseGamma ?? null,
+      surpriseCap: insertParams.surpriseCap ?? null,
+      bowlBonus: insertParams.bowlBonus ?? null,
+      pagerankDamping: insertParams.pagerankDamping ?? null,
+      frozenAt: insertParams.frozenAt ?? null,
       createdAt: new Date() 
     };
     this.algorithmParameters.set(id, params);

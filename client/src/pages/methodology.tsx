@@ -235,7 +235,7 @@ export default function Methodology() {
                   </p>
                   <ul className="text-xs text-blue-600 space-y-1">
                     <li>• Target: B ≤ 4% after Week 8</li>
-                    <li>• Auto-tuning triggered if B > 6%</li>
+                    <li>• Auto-tuning triggered if B &gt; 6%</li>
                     <li>• Parameter changes logged and auditable</li>
                   </ul>
                 </div>
