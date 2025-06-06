@@ -47,7 +47,9 @@ export function BiasAuditDashboard() {
   }
 
   const isNeutral = data.biasMetric <= 4;
-  const averageBias = biasLogs?.reduce((sum, log) => sum + parseFloat(log.biasMetric), 0) / (biasLogs?.length || 1) || data.biasMetric;
+  const averageBias = biasLogs && biasLogs.length > 0 
+    ? biasLogs.reduce((sum, log) => sum + parseFloat(log.biasMetric), 0) / biasLogs.length 
+    : data.biasMetric;
 
   return (
     <Card>
@@ -63,14 +65,45 @@ export function BiasAuditDashboard() {
         </div>
       </CardHeader>
       <CardContent>
-        {/* Chart Placeholder */}
-        <div className="h-48 bg-neutral-50 rounded-lg flex items-center justify-center mb-4">
-          <div className="text-center">
-            <svg className="w-12 h-12 text-neutral-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-            </svg>
-            <p className="text-sm text-neutral-500">Weekly Bias Metric (B) Chart</p>
-            <p className="text-xs text-neutral-400 mt-1">Target: Green band ≤4%</p>
+        {/* Bias Trend Chart */}
+        <div className="h-48 bg-neutral-50 rounded-lg p-4 mb-4">
+          <div className="h-full flex items-end justify-between space-x-1">
+            {biasLogs && biasLogs.length > 0 ? (
+              biasLogs.slice(-12).map((log, idx) => {
+                const bias = parseFloat(log.biasMetric);
+                const height = Math.max((bias / 8) * 100, 8); // Scale to chart height
+                const isTarget = bias <= 4;
+                return (
+                  <div key={idx} className="flex flex-col items-center flex-1">
+                    <div 
+                      className={`w-full rounded-t transition-all ${isTarget ? 'bg-green-600' : 'bg-amber-600'}`}
+                      style={{ height: `${height}%` }}
+                      title={`Week ${log.week}: ${bias.toFixed(1)}%`}
+                    />
+                    <span className="text-xs text-neutral-500 mt-1">{log.week}</span>
+                  </div>
+                );
+              })
+            ) : (
+              // Current week bar if no historical data
+              <div className="flex flex-col items-center flex-1">
+                <div 
+                  className={`w-full rounded-t ${isNeutral ? 'bg-green-600' : 'bg-amber-600'}`}
+                  style={{ height: `${Math.max((data.biasMetric / 8) * 100, 8)}%` }}
+                  title={`Current: ${data.biasMetric.toFixed(1)}%`}
+                />
+                <span className="text-xs text-neutral-500 mt-1">15</span>
+              </div>
+            )}
+          </div>
+          <div className="flex justify-between items-center mt-2">
+            <span className="text-xs text-neutral-400">Weekly Bias Trend</span>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-2 bg-green-600 rounded-sm"></div>
+              <span className="text-xs text-neutral-500">≤4% Target</span>
+              <div className="w-3 h-2 bg-amber-600 rounded-sm"></div>
+              <span className="text-xs text-neutral-500">{'>'}4% Monitor</span>
+            </div>
           </div>
         </div>
 

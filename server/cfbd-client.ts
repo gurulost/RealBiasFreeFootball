@@ -1,5 +1,5 @@
 import { storage } from './storage';
-import type { InsertTeam, InsertGame, InsertRanking, InsertConferenceStrength, InsertBiasAuditLog } from '@shared/schema';
+import type { InsertTeam, InsertGame, InsertRanking, InsertConferenceStrength, InsertBiasAuditLog, InsertAlgorithmParameters } from '@shared/schema';
 
 interface CFBDGame {
   id: number;
