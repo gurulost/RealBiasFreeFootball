@@ -48,7 +48,12 @@ export function ConferenceStrength() {
     );
   }
 
-  const sortedConferences = [...conferenceStrength].sort((a, b) => 
+  // Filter out Independent teams from conference display
+  const actualConferences = conferenceStrength.filter(conf => 
+    !conf.conference.startsWith('IND-')
+  );
+  
+  const sortedConferences = [...actualConferences].sort((a, b) => 
     parseFloat(b.strength) - parseFloat(a.strength)
   );
 
