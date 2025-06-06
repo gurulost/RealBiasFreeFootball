@@ -7,6 +7,7 @@ export function Navbar() {
   const navItems = [
     { href: "/", label: "Live Rankings", isActive: location === "/" },
     { href: "/rankings", label: "Rankings", isActive: location === "/rankings" },
+    { href: "/conference-analysis", label: "Conference Analysis", isActive: location === "/conference-analysis" },
     { href: "/bias-audit", label: "Bias Audit", isActive: location === "/bias-audit" },
     { href: "/methodology", label: "Methodology", isActive: location === "/methodology" },
   ];
